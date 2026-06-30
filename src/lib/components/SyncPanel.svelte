@@ -33,7 +33,8 @@
     }
     busy = true;
     try {
-      const calendarId = await ensureCalendar(token, term);
+      const calendarId =
+        $prefs.destinationMode === 'existing' ? 'primary' : await ensureCalendar(token, term);
       prefs.update((p) => ({ ...p, lastCalendarId: calendarId }));
       const result = await syncSessions(token, calendarId, $sessions);
       toast.success(`Synced: ${result.inserted} added, ${result.patched} updated.`);
@@ -59,7 +60,28 @@
     {busy ? 'Opening Google…' : 'Sign in with Google'}
   </Button>
 {:else}
-  <Button variant="default" onclick={sync} disabled={busy}>
-    {busy ? 'Syncing…' : `Sync ${includable.length} to "UBC Courses ${term}"`}
-  </Button>
+  <div class="flex flex-wrap items-center gap-3">
+    <Button variant="default" onclick={sync} disabled={busy}>
+      {#if busy}
+        Syncing…
+      {:else if $prefs.destinationMode === 'existing'}
+        Sync {includable.length} to your primary calendar
+      {:else}
+        Sync {includable.length} to "UBC Courses {term}"
+      {/if}
+    </Button>
+    <label class="flex items-center gap-2 text-xs text-muted-foreground">
+      <input
+        type="checkbox"
+        class="h-4 w-4 rounded border-input accent-primary"
+        checked={$prefs.destinationMode === 'existing'}
+        onchange={(e) =>
+          prefs.update((p) => ({
+            ...p,
+            destinationMode: (e.currentTarget as HTMLInputElement).checked ? 'existing' : 'dedicated'
+          }))}
+      />
+      Use my primary calendar instead of a dedicated one
+    </label>
+  </div>
 {/if}

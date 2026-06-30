@@ -1,6 +1,7 @@
 import type { Session } from '$lib/parser/types';
 import { syncKeyFor } from '$lib/sync/syncKey';
 import { firstOccurrence, untilUtc, VANCOUVER } from '$lib/ics/recurrence';
+import { courseColorId } from '$lib/ui/colors';
 
 const API = 'https://www.googleapis.com/calendar/v3';
 
@@ -11,6 +12,7 @@ export interface GoogleEvent {
   start: { dateTime: string; timeZone: string };
   end: { dateTime: string; timeZone: string };
   recurrence: string[];
+  colorId: string;
   extendedProperties: { private: { syncKey: string; app: string } };
 }
 
@@ -31,6 +33,7 @@ export function eventFromSession(s: Session): GoogleEvent {
     start: { dateTime: `${date}T${s.startTime}:00`, timeZone: VANCOUVER },
     end: { dateTime: `${date}T${s.endTime}:00`, timeZone: VANCOUVER },
     recurrence: [`RRULE:FREQ=WEEKLY;BYDAY=${s.days.join(',')};UNTIL=${untilUtc(s.rangeEnd)}`],
+    colorId: courseColorId(s.courseCode),
     extendedProperties: { private: { syncKey: syncKeyFor(s), app: APP_TAG } }
   };
   if (s.location) ev.location = s.location;
