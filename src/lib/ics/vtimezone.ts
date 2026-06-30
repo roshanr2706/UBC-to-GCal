@@ -1,0 +1,22 @@
+// Standards-compliant VTIMEZONE for America/Vancouver (US DST rules:
+// PDT from the 2nd Sunday of March, PST from the 1st Sunday of November).
+// Anchoring events to this named zone keeps class times correct across the
+// PST/PDT boundary inside a term.
+export const VANCOUVER_VTIMEZONE = `BEGIN:VTIMEZONE
+TZID:America/Vancouver
+X-LIC-LOCATION:America/Vancouver
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0800
+TZOFFSETTO:-0700
+TZNAME:PDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0700
+TZOFFSETTO:-0800
+TZNAME:PST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE`;
