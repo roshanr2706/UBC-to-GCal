@@ -1,0 +1,24 @@
+# Roshan's personal export files — never track (contains student number / inferred design doc)
+View_My_Courses.xlsx
+excel-to-gcal-design-doc.md
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# SvelteKit / Vite build output
+.svelte-kit/
+build/
+dist/
+.vercel/
+.output/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
