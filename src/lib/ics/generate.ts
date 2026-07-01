@@ -3,6 +3,7 @@ import type { Session } from '$lib/parser/types';
 import { syncKeyFor } from '$lib/sync/syncKey';
 import { VANCOUVER_VTIMEZONE } from './vtimezone';
 import { firstOccurrence, untilUtc } from './recurrence';
+import { noClassDatesInRange } from '$lib/breaks/ubcBreaks';
 
 /** RFC5545 75-octet line folding. */
 function fold(line: string): string {
@@ -41,13 +42,20 @@ function vevent(s: Session): string {
     .filter(Boolean)
     .join('\\n');
 
+  const startHHMM = s.startTime.replace(':', '');
+  // One EXDATE per line keeps each line short (no RFC5545 folding mid-datetime).
+  const exdateLines = noClassDatesInRange(s.rangeStart, s.rangeEnd, s.days).map(
+    (d) => `EXDATE;TZID=America/Vancouver:${d.replace(/-/g, '')}T${startHHMM}00`
+  );
+
   const lines = [
     'BEGIN:VEVENT',
     `UID:${key}@ubc-to-gcal`,
     `DTSTAMP:${dtstamp}`,
-    `DTSTART;TZID=America/Vancouver:${date}T${s.startTime.replace(':', '')}00`,
+    `DTSTART;TZID=America/Vancouver:${date}T${startHHMM}00`,
     `DTEND;TZID=America/Vancouver:${date}T${s.endTime.replace(':', '')}00`,
     `RRULE:FREQ=WEEKLY;BYDAY=${s.days.join(',')};UNTIL=${untilUtc(s.rangeEnd)}`,
+    ...exdateLines,
     `SUMMARY:${esc(summary)}`,
     s.location ? `LOCATION:${esc(s.location)}` : '',
     `DESCRIPTION:${esc(descParts)}`,
