@@ -1,6 +1,7 @@
 <script lang="ts">
   import Uploader from '$lib/components/Uploader.svelte';
   import PreviewTable from '$lib/components/PreviewTable.svelte';
+  import BreaksNote from '$lib/components/BreaksNote.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import Toaster from '$lib/components/ui/Toaster.svelte';
   import SyncPanel from '$lib/components/SyncPanel.svelte';
@@ -36,6 +37,8 @@
   <PreviewTable />
 
   {#if $sessions.length > 0}
+    <BreaksNote />
+
     <div class="flex flex-wrap items-center gap-3 border-t pt-6">
       <Button onclick={download} disabled={includedCount === 0}>
         Download .ics ({includedCount})

@@ -40,6 +40,14 @@ describe('generateICS', () => {
     expect(ics).toContain('RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=');
   });
 
+  it('excludes UBC break/holiday dates via EXDATE', () => {
+    // MWF Term 1 → Thanksgiving (Oct 12, Mon), midterm break (Nov 9 Mon), Remembrance (Nov 11 Wed).
+    expect(ics).toContain('EXDATE;TZID=America/Vancouver:');
+    expect(ics).toContain('20261012T150000');
+    expect(ics).toContain('20261109T150000');
+    expect(ics).toContain('20261111T150000');
+  });
+
   it('uses CRLF line endings', () => {
     expect(ics).toContain('\r\n');
   });

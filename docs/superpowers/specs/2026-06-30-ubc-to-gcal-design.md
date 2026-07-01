@@ -147,6 +147,25 @@ Pipeline:
 
 Authored as `docs/styling-guide.md` and followed throughout. Pins: flat solid palette (**no gradients**), neutral surfaces + single accent, fixed per-course color set for event color-coding, type scale, spacing scale, and shadcn-svelte theme tokens (CSS variables).
 
+## 9a. Break & holiday exclusions (added 2026-06-30)
+
+Workday exports don't remove statutory holidays or the Term-1 midterm break from a
+course's date range (Term-2's February break is the only one it splits around). So a
+naive weekly series would generate class meetings on days when no class runs.
+
+The app bakes in the standard **2026/27 Winter Session** no-class dates from the official
+[UBC Academic Calendar](https://vancouver.calendar.ubc.ca/dates-and-deadlines) and emits
+an `EXDATE` for any weekly occurrence landing on one:
+
+- **Term 1:** Thanksgiving (Oct 12, 2026); midterm break Nov 9–11, 2026 (incl. Remembrance Day).
+- **Term 2:** midterm break Feb 15–19, 2027 (incl. Family Day — already inside the export's split gap); Good Friday (Mar 26, 2027); Easter Monday (Mar 29, 2027).
+
+Implementation: `src/lib/breaks/ubcBreaks.ts` holds the dataset + `noClassDatesInRange(rangeStart, rangeEnd, days)`; both the ICS generator and `eventFromSession` add matching `EXDATE;TZID=America/Vancouver:...` entries. Exclusions are term-agnostic — a date only applies if it falls within a series' own range on a matching weekday, so uploads for other years are unaffected.
+
+The UI (`BreaksNote.svelte`) states these dates are auto-excluded, links the source, and tells
+students on **non-standard schedules** (Medicine, Dentistry, co-op, accelerated terms) to verify
+in Workday and edit the skipped days themselves.
+
 ## 10. Edge cases
 
 - Multi-component course (Lecture + Discussion + Laboratory) → separate sessions/series each scoped to its own block. ✔ handled by per-block sessions.

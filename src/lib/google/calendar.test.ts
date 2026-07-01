@@ -34,9 +34,12 @@ describe('eventFromSession', () => {
     expect(ev.end).toEqual({ dateTime: '2026-09-09T16:00:00', timeZone: 'America/Vancouver' });
   });
 
-  it('builds a weekly RRULE', () => {
-    expect(ev.recurrence).toHaveLength(1);
+  it('builds a weekly RRULE plus an EXDATE for UBC breaks', () => {
     expect(ev.recurrence[0]).toMatch(/^RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=\d{8}T\d{6}Z$/);
+    const exdate = ev.recurrence.find((r) => r.startsWith('EXDATE'));
+    expect(exdate).toBeDefined();
+    expect(exdate).toContain('20261012T150000'); // Thanksgiving
+    expect(exdate).toContain('20261111T150000'); // Remembrance Day
   });
 
   it('tags the event with a private syncKey', () => {

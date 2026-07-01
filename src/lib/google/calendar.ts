@@ -2,6 +2,7 @@ import type { Session } from '$lib/parser/types';
 import { syncKeyFor } from '$lib/sync/syncKey';
 import { firstOccurrence, untilUtc, VANCOUVER } from '$lib/ics/recurrence';
 import { courseColorId } from '$lib/ui/colors';
+import { noClassDatesInRange } from '$lib/breaks/ubcBreaks';
 
 const API = 'https://www.googleapis.com/calendar/v3';
 
@@ -27,12 +28,19 @@ export function eventFromSession(s: Session): GoogleEvent {
     s.term
   ].filter(Boolean);
 
+  const startHHMM = s.startTime.replace(':', '');
+  const exdates = noClassDatesInRange(s.rangeStart, s.rangeEnd, s.days).map(
+    (d) => `${d.replace(/-/g, '')}T${startHHMM}00`
+  );
+  const recurrence = [`RRULE:FREQ=WEEKLY;BYDAY=${s.days.join(',')};UNTIL=${untilUtc(s.rangeEnd)}`];
+  if (exdates.length) recurrence.push(`EXDATE;TZID=${VANCOUVER}:${exdates.join(',')}`);
+
   const ev: GoogleEvent = {
     summary: `${s.courseCode} ${s.component}`,
     description: descParts.join('\n'),
     start: { dateTime: `${date}T${s.startTime}:00`, timeZone: VANCOUVER },
     end: { dateTime: `${date}T${s.endTime}:00`, timeZone: VANCOUVER },
-    recurrence: [`RRULE:FREQ=WEEKLY;BYDAY=${s.days.join(',')};UNTIL=${untilUtc(s.rangeEnd)}`],
+    recurrence,
     colorId: courseColorId(s.courseCode),
     extendedProperties: { private: { syncKey: syncKeyFor(s), app: APP_TAG } }
   };
