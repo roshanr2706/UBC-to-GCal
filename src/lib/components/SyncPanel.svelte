@@ -52,9 +52,7 @@
 </script>
 
 {#if !configured}
-  <Button variant="outline" disabled title="Set PUBLIC_GOOGLE_CLIENT_ID in .env to enable">
-    Sync to Google (not configured)
-  </Button>
+  <!-- Google sync is optional; render nothing when no client ID is configured. -->
 {:else if !token}
   <Button variant="outline" onclick={signIn} disabled={busy}>
     {busy ? 'Opening Google…' : 'Sign in with Google'}
